@@ -1,29 +1,32 @@
+from load_env import load_env
+load_env()
+
 import asyncio
-import os
+import re
 from typing import List
 
-import aiofiles
 import aiohttp
+import django
 from bs4 import BeautifulSoup
+from django.core.files.base import ContentFile
 
-CATEGORIES = (
+
+CATEGORIES = [
     'animals',
     'entertainment',
     'education',
     'food',
     'games-apps',
-)
+]
 MAX_PAGES = 10
-BASE_DOWNLOAD_DIR = '/home/fns/workspace/telegram-stickers/stickers'
 
 
 class StickerDownloader:
     BASE_URL = 'https://telegramchannels.me/stickers'
 
-    def __init__(self, categories: List[str], max_pages: int, base_download_dir: str):
+    def __init__(self, categories: List[str], max_pages: int):
         self._categories = categories
         self._max_pages = max_pages
-        self._base_download_dir = base_download_dir
         self._session = None
 
     async def __aenter__(self):
@@ -42,16 +45,15 @@ class StickerDownloader:
         await asyncio.gather(*futures)
 
     async def _download_stickers_from_category(self, category: str):
-        path = os.path.join(self._base_download_dir, category)
-        if not os.path.exists(path):
-            os.mkdir(path)
-
         futures = (
             self._download_stickers_from_page(category=category, page=page)
             for page in range(1, self._max_pages + 1)
         )
 
-        await asyncio.gather(*futures)
+        # TODO we are getting timeouts if running async
+        # await asyncio.gather(*futures)
+        for future in futures:
+            await future
 
     async def _download_stickers_from_page(self, category: str, page: int):
         params = {
@@ -72,9 +74,16 @@ class StickerDownloader:
             self._download_sticker_pack(category=category, url=url)
             for url in urls
         )
-        await asyncio.gather(*futures)
 
+        # TODO we are getting timeouts if running async
+        # await asyncio.gather(*futures)
+        for future in futures:
+            await future
+
+    # TODO this method is complex and confusing
     async def _download_sticker_pack(self, category: str, url: str):
+        from core.models import Sticker, StickerPack
+
         response = await self._session.get(url)
         html = await response.text()
 
@@ -82,30 +91,41 @@ class StickerDownloader:
         title = soup.title.string
         pack_name = title.split('-')[0].strip()
 
-        path = os.path.join(self._base_download_dir, category, pack_name)
-
-        if not os.path.exists(path):
-            os.mkdir(path)
+        pattern = re.compile(r't.me/addstickers/.+')
+        tme_url = pattern.findall(html)[0]
 
         thumbnails = soup.find_all(class_='light-link')
-        futures = (
-            self._download_thumbnail(
-                url=thumbnail.img['data-src'],
-                download_path=os.path.join(path, f'{pack_name}_{i}.png')
-            )
-            for i, thumbnail in enumerate(thumbnails)
-        )
-        await asyncio.gather(*futures)
 
-    async def _download_thumbnail(self, url: str, download_path: str):
-        file = await aiofiles.open(download_path, mode='wb')
-        response = await self._session.get(url)
-        await file.write(await response.read())
-        await file.close()
+        response = await self._session.get(thumbnails[0].img['data-src'])
+        buffer = await response.read()
+        name = f'{pack_name}_0.png'
+        sticker_pack = StickerPack.objects.create(
+            name=pack_name,
+            category=category,
+            thumbnail=ContentFile(buffer, name=name),
+            tme_url=tme_url,
+        )
+        Sticker.objects.create(
+            preview=ContentFile(buffer, name=name),
+            sticker_pack=sticker_pack,
+        )
+
+        for i, thumbnail in enumerate(thumbnails[1:]):
+            name = f'{pack_name}_{i}.png'
+
+            response = await self._session.get(thumbnails[i].img['data-src'])
+            buffer = await response.read()
+
+            Sticker.objects.create(
+                preview=ContentFile(buffer, name=name),
+                sticker_pack=sticker_pack,
+            )
 
 
 async def main():
-    async with StickerDownloader(categories=['food'], max_pages=1, base_download_dir=BASE_DOWNLOAD_DIR) as downloader:
+    django.setup()
+
+    async with StickerDownloader(categories=['animals'], max_pages=5) as downloader:
         await downloader.download_stickers()
 
 

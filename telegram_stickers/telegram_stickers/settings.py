@@ -1,9 +1,9 @@
 import os
 
+from google.oauth2 import service_account
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
@@ -11,11 +11,11 @@ DEBUG = False
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
     'authentication',
+    'core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'telegram_stickers.wsgi.application'
 
-
 # Database
 
 DATABASES = {
@@ -67,7 +66,6 @@ DATABASES = {
         'PORT': os.getenv('DJANGO_DB_PORT'),
     }
 }
-
 
 # Password validation
 
@@ -86,7 +84,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
@@ -99,10 +96,16 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
 
 # Auth
 AUTH_USER_MODEL = 'authentication.User'
+
+# Media
+DEFAULT_FILE_STORAGE = 'core.gcloud_storages.GoogleCloudMediaStorage'
+GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.getenv('GS_CREDENTIALS'))
+GS_PROJECT_ID = os.getenv('GS_PROJECT_ID')
+GS_DEFAULT_ACL = 'publicRead'
