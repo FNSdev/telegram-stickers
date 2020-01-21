@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -109,3 +111,12 @@ GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.getenv('GS_CREDENTIALS'))
 GS_PROJECT_ID = os.getenv('GS_PROJECT_ID')
 GS_DEFAULT_ACL = 'publicRead'
+
+# REST
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5
+}
