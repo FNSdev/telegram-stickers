@@ -73,6 +73,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+deploy/stage/kubernetes/env-secrets.yaml
 
 # mkdocs documentation
 /site

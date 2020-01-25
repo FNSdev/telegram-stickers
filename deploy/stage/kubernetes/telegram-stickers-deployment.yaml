@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegram-stickers-service
+  labels:
+    app: telegram-stickers
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: telegram-stickers
+    tier: backend
+  type: LoadBalancer
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegram-stickers-deployment
+  labels:
+    app: telegram-stickers
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: telegram-stickers
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: telegram-stickers
+        tier: backend
+    spec:
+      containers:
+      - image: localhost:5000/app:0.1  # TODO replace it with real docker hub url
+        name: telegram-stickers
+        env:
+        - name: DJANGO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_secret_key
+        - name: DJANGO_SETTINGS_MODULE
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_settings_module
+        - name: DJANGO_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_name
+        - name: DJANGO_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_user
+        - name: DJANGO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_password
+        - name: DJANGO_DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_host
+        - name: DJANGO_DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_port
+        - name: DJANGO_ALLOW_UNSAFE_ASYNC
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_allow_unsafe_async
+        - name: GS_BUCKET_NAME
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: gs_bucket_name
+        - name: GS_CREDENTIALS
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: gs_credentials
+        - name: GS_PROJECT_ID
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: gs_project_id
+        ports:
+        - containerPort: 80
+          name: tg-stickers

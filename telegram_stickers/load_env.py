@@ -11,5 +11,3 @@ def load_env():
     elif os.path.exists(os.path.join(base_dir, '.env.local')):
         load_dotenv(os.path.join(base_dir, '.env.local'))
         return
-
-    raise IOError('.env file does not exist')

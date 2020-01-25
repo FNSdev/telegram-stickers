@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+  labels:
+    app: telegram-stickers
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: telegram-stickers
+    tier: psql
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: database-pv-claim
+  labels:
+    app: telegram-stickers
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database-deployment
+  labels:
+    app: telegram-stickers
+spec:
+  selector:
+    matchLabels:
+      app: telegram-stickers
+      tier: psql
+  strategy:
+    type: Recreate  # TODO should it be `recreate` or `rolling update` as by default?
+  template:
+    metadata:
+      labels:
+        app: telegram-stickers
+        tier: psql
+    spec:
+      containers:
+      - image: postgres:11.4-alpine
+        name: psql
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_name
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: environment
+              key: django_db_password
+        ports:
+        - containerPort: 5432
+          name: psql
+        volumeMounts:
+        - name: database-persistent-storage
+          mountPath: /var/lib/psql
+      volumes:
+      - name: database-persistent-storage
+        persistentVolumeClaim:
+          claimName: database-pv-claim
