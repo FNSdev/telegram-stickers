@@ -31,6 +31,6 @@ jobs:
         run: >
           curl -X PUT
           -H "Authorization: Bearer ${{ secrets.K8S_TOKEN }}"
-          -H "Accept: application/yaml"
+          -H "Content-Type: application/yaml"
           --data-binary @env-secrets.yaml
           ${{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment
