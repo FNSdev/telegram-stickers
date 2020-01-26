@@ -5,22 +5,22 @@ on:
     branches:
       - "develop"
 jobs:
-  build_and_publish:
-    runs-on: [ubuntu-latest]
-    env:
-      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-      ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
-    steps:
-      - name: login_to_docker.io
-        run:  echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_LOGIN} --password-stdin
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: build_image
-        run: docker build --build-arg ENCRYPT_KEY=${ENCRYPT_KEY} -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile .
-      - name: push_image_to_docker.io
-        run: docker push $DOCKER_LOGIN/$IMAGE_NAME:latest
+#  build_and_publish:
+#    runs-on: [ubuntu-latest]
+#    env:
+#      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+#      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+#      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+#      ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
+#    steps:
+#      - name: login_to_docker.io
+#        run:  echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_LOGIN} --password-stdin
+#      - name: checkout
+#        uses: actions/checkout@v2
+#      - name: build_image
+#        run: docker build --build-arg ENCRYPT_KEY=${ENCRYPT_KEY} -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile .
+#      - name: push_image_to_docker.io
+#        run: docker push $DOCKER_LOGIN/$IMAGE_NAME:latest
   deploy:
     needs: [build_and_publish]
     runs-on: [ubuntu-latest]
@@ -49,6 +49,7 @@ jobs:
             --from-literal=gs_credentials=${{ secrets.GS_CREDENTIALS }}
             --from-literal=gs_project_id=${{ secrets.GS_PROJECT_ID }}
           secret-name: environment
+          kubectl-version: "v1.17.2"
       - name: deploy_database_manifest
         uses: Azure/k8s-deploy@v1
         with:
