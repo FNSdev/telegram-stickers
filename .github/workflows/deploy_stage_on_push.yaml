@@ -15,7 +15,6 @@ jobs:
           password: "${{ secrets.DOCKER_PASSWORD }}"
           image_name: "${{ secrets.IMAGE_NAME }}"
           image_tag: latest
-          registry: hub.docker.com
           dockerfile: deploy/stage/Dockerfile
           build_extra_args: "--compress=true --build-arg ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}"
   deploy:
