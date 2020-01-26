@@ -12,7 +12,7 @@ spec:
   selector:
     app: telegram-stickers
     tier: psql
-  type: NodePort
+  type: LoadBalancer  # TODO recheck it.
 
 ---
 
@@ -27,7 +27,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 1Gi
 
 ---
 

@@ -1,0 +1,75 @@
+name: deploy_stage_on_push  # to develop branch
+
+on:
+  push:
+    branches:
+      - "develop"
+jobs:
+  build_and_publish:
+    runs-on: [ubuntu-latest]
+    env:
+      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+      ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
+    steps:
+      - name: login_to_docker.io
+        run:  echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_LOGIN} --password-stdin
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: build_image
+        run: docker build -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile --build-arg ENCRYPT_KEY=${ENCRYPT_KEY}
+      - name: push_image_to_docker.io
+        run: docker push $DOCKER_LOGIN/$IMAGE_NAME:latest
+  deploy:
+    needs: [build_and_publish]
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: set_kubernetes_context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: service-account
+          k8s-url: ${{ secrets.K8S_URL }}
+          k8s-secret: ${{ secrets.K8S_SECRET }}
+      - name: set_image_pull_secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          namespace: "default"
+          container-registry-url: 'containerregistry.contoso.com'
+          container-registry-username: ${{ secrets.DOCKER_LOGIN }}
+          container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
+          secret-name: "image_pull_secret"
+      - name: set_environment_secrets
+        uses: azure/k8s-create-secret@v1
+        with:
+          namespace: 'default'
+          secret-type: 'generic'
+          arguments:  >
+            --from-literal=django_secret_key=${{ secrets.DJANGO_SECRET_KEY }}
+            --from-literal=django_settings_module=${{ secrets.DJANGO_SETTINGS_MODULE }}
+            --from-literal=django_db_name=${{ secrets.DJANGO_DB_NAME }}
+            --from-literal=django_db_user=${{ secrets.DJANGO_DB_USER }}
+            --from-literal=django_db_password=${{ secrets.DJANGO_DB_PASSWORD }}
+            --from-literal=django_db_host=${{ secrets.DJANGO_DB_HOST }}
+            --from-literal=django_db_port=${{ secrets.DJANGO_DB_PORT }}
+            --from-literal=django_allow_unsafe_async=${{ secrets.DJANGO_ALLOW_UNSAFE_ASYNC }}
+            --from-literal=gs_bucket_name=${{ secrets.GS_BUCKET_NAME }}
+            --from-literal=gs_credentials=${{ secrets.GS_CREDENTIALS }}
+            --from-literal=gs_project_id=${{ secrets.GS_PROJECT_ID }}
+          secret-name: environment
+      - name: deploy_database_manifest
+        uses: Azure/k8s-deploy@v1
+        with:
+          namespace: "default"
+          manifests: |
+            deploy/stage/kubernetes/database-deployment.yaml
+          kubectl-version: "v1.17.2"
+      - name: deploy_telegram_stickers_manifest
+        uses: Azure/k8s-deploy@v1
+        with:
+          namespace: "default"
+          manifests: |
+            deploy/stage/kubernetes/telegram-stickers-deployment.yaml
+          imagepullsecrets: |
+            image-pull-secret
+          kubectl-version: "v1.17.2"

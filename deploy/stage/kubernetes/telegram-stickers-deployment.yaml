@@ -33,7 +33,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: localhost:5000/app:0.1  # TODO replace it with real docker hub url
+      - image: hub.docker.com/fnsdev/telegram-stickers-stage:latest  # TODO replace it with real docker hub url
         name: telegram-stickers
         env:
         - name: DJANGO_SECRET_KEY
