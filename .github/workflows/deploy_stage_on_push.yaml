@@ -28,7 +28,7 @@ jobs:
       - name: apply_secrets
         run: >
           curl -X PUT
-          -H "Authorization: Bearer {{ secrets.K8S_TOKEN }}"
+          -H "Authorization: Bearer ${{ secrets.K8S_TOKEN }}"
           -H "Accept: application/yaml"
-          --data {{ secrets.K8S_ENVIRONMENT_SECRETS }}
-          {{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment
+          --data ${{ secrets.K8S_ENVIRONMENT_SECRETS }}
+          ${{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment
