@@ -28,6 +28,8 @@ jobs:
       K8S_URL: ${{ secrets.K8S_URL }}
       K8S_TOKEN: ${{ secrets.K8S_TOKEN }}
     steps:
+      - name: checkout
+        uses: actions/checkout@v2
       - name: create_secrets_file
         run: echo '${{ secrets.K8S_ENVIRONMENT_SECRETS }}' >> env-secrets.yaml
       - name: apply_secrets
