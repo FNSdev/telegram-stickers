@@ -26,7 +26,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: create_secrets_file
-        run: echo ${{ secrets.K8S_ENVIRONMENT_SECRETS }} >> env-secrets.yaml
+        run: echo '${{ secrets.K8S_ENVIRONMENT_SECRETS }}' >> env-secrets.yaml
       - name: apply_secrets
         run: >
           curl -X PUT
