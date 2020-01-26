@@ -74,5 +74,5 @@ jobs:
           manifests: |
             deploy/stage/kubernetes/telegram-stickers-deployment.yaml
           imagepullsecrets: |
-            image-pull-secret
+            regcred
           kubectl-version: "v1.17.2"
