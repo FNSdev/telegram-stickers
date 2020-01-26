@@ -13,14 +13,16 @@ jobs:
       IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
       ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
     steps:
-      - name: login_to_docker.io
-        run:  echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_LOGIN} --password-stdin
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: build_image
-        run: docker build --build-arg ENCRYPT_KEY=${ENCRYPT_KEY} -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile .
-      - name: push_image_to_docker.io
-        run: docker push $DOCKER_LOGIN/$IMAGE_NAME:latest
+      - name: build_and_push
+      - uses: whoan/docker-build-with-cache-action@v2
+        with:
+          username: "${DOCKER_LOGIN}"
+          password: "${DOCKER_PASSWORD}"
+          image_name: "$DOCKER_LOGIN/$IMAGE_NAME"
+          image_tag: latest
+          registry: hub.docker.com
+          dockerfile: deploy/stage/Dockerfile
+          build_extra_args: "--compress=true --build-arg ENCRYPT_KEY={$ENCRYPT_KEY}"
   deploy:
     needs: [build_and_publish]
     runs-on: [ubuntu-latest]
@@ -35,7 +37,7 @@ jobs:
         uses: azure/k8s-create-secret@v1
         with:
           namespace: "default"
-          container-registry-url: 'containerregistry.contoso.com'
+          container-registry-url: 'hub.docker.com'
           container-registry-username: ${{ secrets.DOCKER_LOGIN }}
           container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
           secret-name: "image_pull_secret"
