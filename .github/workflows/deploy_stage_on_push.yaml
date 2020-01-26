@@ -34,3 +34,7 @@ jobs:
         run: echo '${{ secrets.K8S_ENVIRONMENT_SECRETS }}' >> env-secrets.yaml
       - name: apply_secrets
         run: bash deploy/stage/create_env_secrets.sh
+      - name: apply_database_service
+        run: bash deploy/stage/create_database_service.sh
+      - name: apply_database_deployment
+        run: bash deploy/stage/create_database_deployment.sh

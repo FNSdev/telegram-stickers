@@ -1,3 +1,4 @@
+# TODO should it be recreated/updated on each push?
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
