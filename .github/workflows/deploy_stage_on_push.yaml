@@ -58,6 +58,8 @@ jobs:
 #            --from-literal=gs_credentials=${{ secrets.GS_CREDENTIALS }}
 #            --from-literal=gs_project_id=${{ secrets.GS_PROJECT_ID }}
 #          secret-name: environment
+      - name: checkout
+        uses: actions/checkout@v2
       - name: deploy_database_manifest
         uses: Azure/k8s-deploy@v1
         with:
