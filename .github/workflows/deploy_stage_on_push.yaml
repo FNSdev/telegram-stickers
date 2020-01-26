@@ -38,13 +38,13 @@ jobs:
           container-registry-url: "docker.io"
           container-registry-username: ${{ secrets.DOCKER_LOGIN }}
           container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
-          secret-name: "image_pull_secret"
+          secret-name: "image-pull-secret"
           kubectl-version: "v1.17.2"
       - name: set_environment_secrets
         uses: azure/k8s-create-secret@v1
         with:
-          namespace: 'default'
-          secret-type: 'generic'
+          namespace: "default"
+          secret-type: "generic"
           arguments:  >
             --from-literal=django_secret_key=${{ secrets.DJANGO_SECRET_KEY }}
             --from-literal=django_settings_module=${{ secrets.DJANGO_SETTINGS_MODULE }}
