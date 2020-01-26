@@ -31,6 +31,15 @@ jobs:
           method: service-account
           k8s-url: ${{ secrets.K8S_URL }}
           k8s-secret: ${{ secrets.K8S_SECRET }}
+      - name: set_image_pull_secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          namespace: "default"
+          container-registry-url: "docker.io"
+          container-registry-username: ${{ secrets.DOCKER_LOGIN }}
+          container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
+          secret-name: "image_pull_secret"
+          kubectl-version: "v1.17.2"
       - name: set_environment_secrets
         uses: azure/k8s-create-secret@v1
         with:
@@ -49,7 +58,6 @@ jobs:
             --from-literal=gs_credentials=${{ secrets.GS_CREDENTIALS }}
             --from-literal=gs_project_id=${{ secrets.GS_PROJECT_ID }}
           secret-name: environment
-          kubectl-version: "v1.17.2"
       - name: deploy_database_manifest
         uses: Azure/k8s-deploy@v1
         with:
