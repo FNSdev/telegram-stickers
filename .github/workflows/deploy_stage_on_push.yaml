@@ -31,4 +31,4 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.K8S_TOKEN }}"
           -H "Accept: application/yaml"
           --data ${{ secrets.K8S_ENVIRONMENT_SECRETS }}
-          ${{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment
+          "${{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment"
