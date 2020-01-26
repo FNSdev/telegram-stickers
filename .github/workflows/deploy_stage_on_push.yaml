@@ -7,22 +7,17 @@ on:
 jobs:
   build_and_publish:
     runs-on: [ubuntu-latest]
-    env:
-      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-      ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
     steps:
       - name: build_and_push
         uses: whoan/docker-build-with-cache-action@v2
         with:
-          username: "${DOCKER_LOGIN}"
-          password: "${DOCKER_PASSWORD}"
-          image_name: "$DOCKER_LOGIN/$IMAGE_NAME"
+          username: "${{ secrets.DOCKER_LOGIN }}"
+          password: "${{ secrets.DOCKER_PASSWORD }}"
+          image_name: "${{ secrets.IMAGE_NAME }}"
           image_tag: latest
           registry: hub.docker.com
           dockerfile: deploy/stage/Dockerfile
-          build_extra_args: "--compress=true --build-arg ENCRYPT_KEY={$ENCRYPT_KEY}"
+          build_extra_args: "--compress=true --build-arg ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}"
   deploy:
     needs: [build_and_publish]
     runs-on: [ubuntu-latest]
