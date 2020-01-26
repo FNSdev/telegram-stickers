@@ -13,12 +13,12 @@ jobs:
       - name: build_and_push
         uses: whoan/docker-build-with-cache-action@v2
         with:
-          username: "${{ secrets.DOCKER_LOGIN }}"
-          password: "${{ secrets.DOCKER_PASSWORD }}"
-          image_name: "${{ secrets.IMAGE_NAME }}"
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          image_name: ${{ secrets.IMAGE_NAME }}
           image_tag: latest
           dockerfile: deploy/stage/Dockerfile
-          build_extra_args: "--compress=true --build-arg=ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}"
+          build_extra_args: --compress=true --build-arg=ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}
   deploy:
     needs: [build_and_publish]
     runs-on: [ubuntu-latest]
