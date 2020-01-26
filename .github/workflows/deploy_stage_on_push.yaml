@@ -25,12 +25,12 @@ jobs:
     # needs: [build_and_publish]
     runs-on: [ubuntu-latest]
     steps:
-#      - name: set_kubernetes_context
-#        uses: azure/k8s-set-context@v1
-#        with:
-#          method: service-account
-#          k8s-url: ${{ secrets.K8S_URL }}
-#          k8s-secret: ${{ secrets.K8S_SECRET }}
+      - name: set_kubernetes_context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: service-account
+          k8s-url: ${{ secrets.K8S_URL }}
+          k8s-secret: ${{ secrets.K8S_SECRET }}
 #      - name: set_image_pull_secret
 #        uses: azure/k8s-create-secret@v1
 #        with:
