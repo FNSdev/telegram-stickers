@@ -24,13 +24,11 @@ jobs:
   deploy:
     # needs: [build_and_publish]
     runs-on: [ubuntu-latest]
+    env:
+      K8S_URL: ${{ secrets.K8S_URL }}
+      K8S_TOKEN: ${{ secrets.K8S_TOKEN }}
     steps:
       - name: create_secrets_file
         run: echo '${{ secrets.K8S_ENVIRONMENT_SECRETS }}' >> env-secrets.yaml
       - name: apply_secrets
-        run: >
-          curl -X PUT
-          -H "Authorization: Bearer ${{ secrets.K8S_TOKEN }}"
-          -H "Content-Type: application/yaml"
-          --data-binary @env-secrets.yaml
-          ${{ secrets.K8S_URL }}/api/v1/namespaces/default/secrets/environment
+        run: sh deploy/stage/create_env_secrets.sh
