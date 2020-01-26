@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+  labels:
+    app: telegram-stickers
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: telegram-stickers
+    tier: psql
+  type: LoadBalancer  # TODO recheck it.
