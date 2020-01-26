@@ -32,6 +32,8 @@ spec:
         app: telegram-stickers
         tier: backend
     spec:
+      imagePullSecrets:
+      - name: regcred
       containers:
       - image: hub.docker.com/fnsdev/telegram-stickers-stage:latest  # TODO replace it with real docker hub url
         name: telegram-stickers
