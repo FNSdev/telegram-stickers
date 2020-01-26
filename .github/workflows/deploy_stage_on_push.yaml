@@ -18,7 +18,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: build_image
-        run: docker build -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile --build-arg ENCRYPT_KEY=${ENCRYPT_KEY}
+        run: docker build --build-arg ENCRYPT_KEY=${ENCRYPT_KEY} -t $DOCKER_LOGIN/$IMAGE_NAME:latest -f deploy/stage/Dockerfile
       - name: push_image_to_docker.io
         run: docker push $DOCKER_LOGIN/$IMAGE_NAME:latest
   deploy:
