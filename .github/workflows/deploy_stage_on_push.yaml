@@ -8,6 +8,8 @@ jobs:
   build_and_publish:
     runs-on: [ubuntu-latest]
     steps:
+      - name: checkout
+        uses: actions/checkout@v2
       - name: build_and_push
         uses: whoan/docker-build-with-cache-action@v2
         with:
