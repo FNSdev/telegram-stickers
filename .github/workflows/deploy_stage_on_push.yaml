@@ -24,7 +24,7 @@ jobs:
   deploy:
     # needs: [build_and_publish]
     runs-on: [ubuntu-latest]
-#    steps:
+    steps:
 #      - name: set_kubernetes_context
 #        uses: azure/k8s-set-context@v1
 #        with:
