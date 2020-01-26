@@ -33,4 +33,4 @@ jobs:
       - name: create_secrets_file
         run: echo '${{ secrets.K8S_ENVIRONMENT_SECRETS }}' >> env-secrets.yaml
       - name: apply_secrets
-        run: sh deploy/stage/create_env_secrets.sh
+        run: bash deploy/stage/create_env_secrets.sh
