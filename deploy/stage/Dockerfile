@@ -1,12 +1,15 @@
-FROM python:3.8.1-alpine3.11
+FROM python:3.8.1-slim-buster
 
 ARG ENCRYPT_KEY
 
 WORKDIR /home/telegram-stickers
-RUN apk add --no-cache python3-dev openssl-dev libffi-dev gcc postgresql-dev musl-dev zlib-dev jpeg-dev make gnupg \
-    && pip3 install --upgrade pip
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y gcc linux-libc-dev libc6-dev gpg && \
+    pip3 install --upgrade pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /home/telegram-stickers/
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache -r requirements.txt
 COPY deploy/stage/telegram-stickers-stage.json.gpg telegram_stickers/ /home/telegram-stickers/
 RUN gpg --quiet --batch --yes --decrypt --passphrase="$ENCRYPT_KEY" \
     --output telegram-stickers-stage.json telegram-stickers-stage.json.gpg
