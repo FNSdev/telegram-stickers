@@ -1,5 +1,5 @@
 status_code=$(curl -X PATCH --write-out %{http_code} --silent --output /dev/null \
-  -H "Content-Type: strategic-merge-patch+json" -H "Authorization: Bearer $K8S_TOKEN" \
+  -H "Content-Type: application/strategic-merge-patch+json" -H "Authorization: Bearer $K8S_TOKEN" \
   --data {"spec":{"template":{"spec":{"containers":[{"name":"telegram-stickers","image":"fnsdev/telegram-stickers-stage:$RELEASE_VERSION"}]}}}} \
   $K8S_URL/apis/apps/v1/namespaces/default/deployments/telegram-stickers-deployment)
 
